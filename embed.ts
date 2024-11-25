@@ -33,7 +33,6 @@ const createEmbeddings = async () => {
 const vectorStore = await createEmbeddings()
 
 export const findDocuments = async (text: string, numOfDocuments: number) => {
-    // @ts-expect-error Property 'similaritySearch' does not exist on type 'MemoryVectorStore'.
     const results: Document[] = await vectorStore.similaritySearch(
         text,
         numOfDocuments,
