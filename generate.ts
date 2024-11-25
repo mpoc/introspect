@@ -3,10 +3,11 @@ import {
     RunnableSequence,
 } from '@langchain/core/runnables'
 import { StringOutputParser } from '@langchain/core/output_parsers'
-import { formatDocumentsAsString } from 'langchain/util/document'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { llm } from './models.ts'
 import { vectorStore } from './embed.ts'
+import type { Document } from '@langchain/core/documents'
+import { format } from '@std/datetime/format'
 
 const prompt = PromptTemplate.fromTemplate(
     `You are a helpful AI assistant that helps analyze personal journal entries.
@@ -21,10 +22,16 @@ Question: {question}
 Answer: `,
 )
 
+const formatEntriesAsString = (docs: Document[]) => {
+    return docs.map((doc) =>
+        `${format(doc.metadata.timestamp, 'yyyy-MM-dd')}: ${doc.pageContent}`
+    )
+}
+
 const createChain = () => {
     return RunnableSequence.from([
         {
-            context: vectorStore.asRetriever().pipe(formatDocumentsAsString),
+            context: vectorStore.asRetriever().pipe(formatEntriesAsString),
             question: new RunnablePassthrough(),
         },
         prompt,

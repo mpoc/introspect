@@ -1,18 +1,19 @@
 {
-  "tasks": {
-    "dev": "deno run --watch main.ts"
-  },
-  "fmt": {
-    "indentWidth": 4,
-    "semiColons": false,
-    "singleQuote": true,
-    "include": ["*.ts"]
-  },
-  "imports": {
-    "@langchain/core": "npm:@langchain/core@^0.3.18",
-    "@langchain/ollama": "npm:@langchain/ollama@^0.1.2",
-    "@langchain/pinecone": "npm:@langchain/pinecone@^0.1.3",
-    "@std/path": "jsr:@std/path@^1.0.8",
-    "langchain": "npm:langchain@^0.3.6"
-  }
+    "tasks": {
+        "dev": "deno run --watch main.ts"
+    },
+    "fmt": {
+        "indentWidth": 4,
+        "semiColons": false,
+        "singleQuote": true,
+        "include": ["*.ts"]
+    },
+    "imports": {
+        "@langchain/core": "npm:@langchain/core@^0.3.18",
+        "@langchain/ollama": "npm:@langchain/ollama@^0.1.2",
+        "@langchain/pinecone": "npm:@langchain/pinecone@^0.1.3",
+        "@std/datetime": "jsr:@std/datetime@^0.225.2",
+        "@std/path": "jsr:@std/path@^1.0.8",
+        "langchain": "npm:langchain@^0.3.6"
+    }
 }
