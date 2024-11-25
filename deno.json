@@ -2,6 +2,12 @@
   "tasks": {
     "dev": "deno run --watch main.ts"
   },
+  "fmt": {
+    "indentWidth": 4,
+    "semiColons": false,
+    "singleQuote": true,
+    "include": ["*.ts"]
+  },
   "imports": {
   }
 }
