@@ -30,12 +30,4 @@ const createEmbeddings = async () => {
     return vectorStore
 }
 
-const vectorStore = await createEmbeddings()
-
-export const findDocuments = async (text: string, numOfDocuments: number) => {
-    const results: Document[] = await vectorStore.similaritySearch(
-        text,
-        numOfDocuments,
-    )
-    return results
-}
+export const vectorStore = await createEmbeddings()

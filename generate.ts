@@ -1,7 +1,7 @@
 import { RunnableSequence } from '@langchain/core/runnables'
 import { StringOutputParser } from '@langchain/core/output_parsers'
 import { formatDocumentsAsString } from 'langchain/util/document'
-import { findDocuments } from './embed.ts'
+import { findDocuments } from './retrieve.ts'
 import { llm } from './llm.ts'
 
 const TEMPLATE =
