@@ -45,8 +45,3 @@ export const askJournal = async (question: string) => {
     const response = await chain.invoke(question)
     return response
 }
-
-// Example usage:
-// await askJournal("What have I been learning recently?")
-// await askJournal("How have I been feeling about myself?")
-// await askJournal("What are some challenges I've faced?")
