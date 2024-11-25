@@ -5,7 +5,7 @@ import {
 import { StringOutputParser } from '@langchain/core/output_parsers'
 import { formatDocumentsAsString } from 'langchain/util/document'
 import { PromptTemplate } from '@langchain/core/prompts'
-import { llm } from './llm.ts'
+import { llm } from './models.ts'
 import { vectorStore } from './embed.ts'
 
 const prompt = PromptTemplate.fromTemplate(

@@ -3,7 +3,7 @@ import { Document } from '@langchain/core/documents'
 import { DirectoryLoader } from 'langchain/document_loaders/fs/directory'
 import { TextLoader } from 'langchain/document_loaders/fs/text'
 import { basename, extname } from '@std/path'
-import { embeddings } from './embeddings.ts'
+import { embeddings } from './models.ts'
 
 const createEmbeddings = async () => {
     const loader = new DirectoryLoader(
