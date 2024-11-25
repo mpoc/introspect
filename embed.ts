@@ -1,16 +1,11 @@
-import { OllamaEmbeddings } from '@langchain/ollama'
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 import { Document } from '@langchain/core/documents'
 import { DirectoryLoader } from 'langchain/document_loaders/fs/directory'
 import { TextLoader } from 'langchain/document_loaders/fs/text'
 import { basename, extname } from '@std/path'
+import { embeddings } from './embeddings.ts'
 
 const createEmbeddings = async () => {
-    const embeddings = new OllamaEmbeddings({
-        model: 'nomic-embed-text:v1.5',
-        baseUrl: 'http://localhost:11434',
-    })
-
     const loader = new DirectoryLoader(
         './entries',
         {

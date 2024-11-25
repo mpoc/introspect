@@ -1,13 +1,8 @@
-import { Ollama } from '@langchain/ollama'
 import { RunnableSequence } from '@langchain/core/runnables'
 import { StringOutputParser } from '@langchain/core/output_parsers'
 import { formatDocumentsAsString } from 'langchain/util/document'
 import { findDocuments } from './embed.ts'
-
-const llm = new Ollama({
-    model: 'llama3.1:8b',
-    baseUrl: 'http://localhost:11434',
-})
+import { llm } from './llm.ts'
 
 const TEMPLATE =
     `You are a helpful AI assistant that helps analyze personal journal entries.
