@@ -23,9 +23,13 @@ Answer: `,
 )
 
 const formatEntriesAsString = (docs: Document[]) => {
-    return docs.map((doc) =>
-        `${format(doc.metadata.timestamp, 'yyyy-MM-dd')}: ${doc.pageContent}`
-    )
+    return docs
+        .map((doc) =>
+            `${
+                format(doc.metadata.timestamp, 'yyyy-MM-dd')
+            }:\n${doc.pageContent}`
+        )
+        .join('\n\n')
 }
 
 const createChain = () => {
