@@ -9,5 +9,5 @@ export const embeddings = new OllamaEmbeddings({
 export const llm = new Ollama({
     model: 'llama3.1:8b',
     baseUrl: 'http://localhost:11434',
-    verbose: true,
+    verbose: false,
 })
