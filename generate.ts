@@ -31,7 +31,7 @@ const formatEntriesAsString = (docs: Document[]) => {
 const createChain = () => {
     return RunnableSequence.from([
         {
-            context: vectorStore.asRetriever().pipe(formatEntriesAsString),
+            context: vectorStore.asRetriever(5).pipe(formatEntriesAsString),
             question: new RunnablePassthrough(),
         },
         prompt,
