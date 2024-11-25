@@ -1,16 +1,10 @@
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
-import { DirectoryLoader } from 'langchain/document_loaders/fs/directory'
-import { TextLoader } from 'langchain/document_loaders/fs/text'
+import { ObsidianLoader } from '@langchain/community/document_loaders/fs/obsidian'
 import { basename, extname } from '@std/path'
 import { embeddings } from './models.ts'
 
 const createEmbeddings = async () => {
-    const loader = new DirectoryLoader(
-        './entries',
-        {
-            '.md': (path) => new TextLoader(path),
-        },
-    )
+    const loader = new ObsidianLoader('./entries')
 
     const docs = await loader.load()
 
