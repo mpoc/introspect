@@ -3,7 +3,7 @@ import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 import { Document } from '@langchain/core/documents'
 import { DirectoryLoader } from 'langchain/document_loaders/fs/directory'
 import { TextLoader } from 'langchain/document_loaders/fs/text'
-import { basename } from '@std/path/basename'
+import { basename, extname } from '@std/path'
 
 const createEmbeddings = async () => {
     const embeddings = new OllamaEmbeddings({
@@ -23,7 +23,7 @@ const createEmbeddings = async () => {
     docs.forEach(
         (doc) =>
             doc.metadata.timestamp = new Date(
-                basename(doc.metadata.source, '.md'),
+                basename(doc.metadata.source, extname(doc.metadata.source)),
             ),
     )
 
