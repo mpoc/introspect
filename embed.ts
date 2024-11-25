@@ -1,5 +1,4 @@
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
-import { Document } from '@langchain/core/documents'
 import { DirectoryLoader } from 'langchain/document_loaders/fs/directory'
 import { TextLoader } from 'langchain/document_loaders/fs/text'
 import { basename, extname } from '@std/path'
