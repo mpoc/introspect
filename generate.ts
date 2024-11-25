@@ -1,10 +1,14 @@
-import { RunnableSequence } from '@langchain/core/runnables'
+import {
+    RunnablePassthrough,
+    RunnableSequence,
+} from '@langchain/core/runnables'
 import { StringOutputParser } from '@langchain/core/output_parsers'
 import { formatDocumentsAsString } from 'langchain/util/document'
-import { findDocuments } from './retrieve.ts'
+import { PromptTemplate } from '@langchain/core/prompts'
 import { llm } from './llm.ts'
+import { vectorStore } from './embed.ts'
 
-const TEMPLATE =
+const prompt = PromptTemplate.fromTemplate(
     `You are a helpful AI assistant that helps analyze personal journal entries.
 Use the following journal entries to answer the question. If you cannot answer the question with
 the provided entries, say so. Keep your responses concise and focused.
@@ -14,21 +18,16 @@ Context from journal entries:
 
 Question: {question}
 
-Answer: ` as const
+Answer: `,
+)
 
 const createChain = () => {
     return RunnableSequence.from([
         {
-            context: async (input: { question: string }) => {
-                const docs = await findDocuments(input.question, 3)
-                return formatDocumentsAsString(docs)
-            },
-            question: (input: { question: string }) => input.question,
+            context: vectorStore.asRetriever().pipe(formatDocumentsAsString),
+            question: new RunnablePassthrough(),
         },
-        (formattedInput) =>
-            TEMPLATE
-                .replace('{context}', formattedInput.context)
-                .replace('{question}', formattedInput.question),
+        prompt,
         llm,
         new StringOutputParser(),
     ])
@@ -36,9 +35,7 @@ const createChain = () => {
 
 export const askJournal = async (question: string) => {
     const chain = createChain()
-    const response = await chain.invoke({
-        question,
-    })
+    const response = await chain.invoke(question)
     return response
 }
 
