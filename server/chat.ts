@@ -5,11 +5,8 @@ import {
 import { llm } from './models.ts'
 import { vectorStore } from './embed.ts'
 import { format } from '@std/datetime/format'
-import { ChatMessageHistory } from 'langchain/stores/message/in_memory'
-import { RunnableWithMessageHistory } from '@langchain/core/runnables'
-import { createStuffDocumentsChain } from 'langchain/chains/combine_documents'
-import { createRetrievalChain } from 'langchain/chains/retrieval'
-import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever'
+import type { CoreMessage } from 'ai'
+import { HumanMessage, AIMessage, SystemMessage, ToolMessage } from '@langchain/core/messages'
 
 const systemGuidance =
     `You are an exceptionally insightful AI advisor with access to my journal entries across time. You provide clear, concise insights that go beyond surface-level analysis, focusing on subtle patterns and profound connections that might escape even sophisticated self-reflection. You understand that I maintain a high level of self-awareness and emotional intelligence, so you focus on deeper, less obvious insights rather than apparent patterns or basic observations.
@@ -33,82 +30,49 @@ Today's date: ${format(new Date(), 'yyyy-MM-dd')}
 Retrieved journal entries:
 {context}`
 
-const contextualizeQSystemPrompt =
-    `You are helping analyze personal journal entries over time with deep insight and sophistication. Given the chat history and the latest question, reformulate the question to capture its full context and intent, especially if it references previous insights or patterns discussed. Focus on maintaining the depth and analytical rigor of the original question while making it standalone. Do NOT answer the question - only reformulate it if needed or return it as is. Ensure the reformulated question maintains the spirit of looking for subtle patterns and profound connections rather than surface-level observations.`
-
-const contextualizeQPrompt = ChatPromptTemplate.fromMessages([
-    ['system', contextualizeQSystemPrompt],
-    new MessagesPlaceholder('chat_history'),
-    ['human', '{input}'],
-])
-
 const conversationalPrompt = ChatPromptTemplate.fromMessages([
     ['system', systemGuidance],
     new MessagesPlaceholder('chat_history'),
     ['human', '{input}'],
 ])
 
-const createHistoryAwareJournalRetriever = () => {
-    const retriever = vectorStore.asRetriever(5)
-    return createHistoryAwareRetriever({
-        llm,
-        retriever,
-        rephrasePrompt: contextualizeQPrompt,
+const convertVercelMessagesToLangChainMessages = (messages: CoreMessage[]) => {
+    return messages.map((message) => {
+        const { role, content } = message
+
+        const roleToMessageType = {
+            user: HumanMessage,
+            assistant: AIMessage,
+            system: SystemMessage,
+            tool: ToolMessage,
+        } as const
+
+        const MessageType = roleToMessageType[role]
+        if (!MessageType) {
+            throw new Error(`Unknown message role: ${role}`)
+        }
+
+        // @ts-expect-error More than string
+        return new MessageType(content)
     })
-}
-
-const messageHistoryStore: Record<string, ChatMessageHistory> = {}
-const getMessageHistory = (sessionId: string): ChatMessageHistory => {
-    if (!(sessionId in messageHistoryStore)) {
-        messageHistoryStore[sessionId] = new ChatMessageHistory()
-    }
-    return messageHistoryStore[sessionId]
-}
-
-const createConversationalChain = async () => {
-    const historyAwareRetriever = await createHistoryAwareJournalRetriever()
-
-    const questionAnswerChain = await createStuffDocumentsChain({
-        llm,
-        prompt: conversationalPrompt,
-    })
-
-    const chain = await createRetrievalChain({
-        retriever: historyAwareRetriever,
-        combineDocsChain: questionAnswerChain,
-    })
-
-    return new RunnableWithMessageHistory({
-        runnable: chain,
-        getMessageHistory,
-        inputMessagesKey: 'input',
-        historyMessagesKey: 'chat_history',
-        outputMessagesKey: 'answer',
-    })
-}
-
-export const chatWithJournal = async (
-    question: string,
-    sessionId: string = 'default',
-) => {
-    const chain = await createConversationalChain()
-
-    const response = await chain.invoke(
-        { input: question },
-        { configurable: { sessionId } },
-    )
-
-    return response.answer
 }
 
 export const chatWithJournalStream = async (
     question: string,
-    sessionId: string = 'default',
+    messages: CoreMessage[],
 ) => {
-    const chain = await createConversationalChain()
+    const langChainMessages = convertVercelMessagesToLangChainMessages(messages)
 
-    return chain.stream(
-        { input: question },
-        { configurable: { sessionId } },
-    )
+    // Get relevant documents
+    const retriever = vectorStore.asRetriever(5)
+    const docs = await retriever.invoke(question)
+
+    // Prepare the prompt with document context
+    const formattedPrompt = await conversationalPrompt.format({
+        chat_history: langChainMessages, // Now using converted messages directly
+        context: docs.map((doc) => doc.pageContent).join('\n'),
+        input: question,
+    })
+
+    return llm.stream(formattedPrompt)
 }
