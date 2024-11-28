@@ -10,8 +10,13 @@
         "indentWidth": 4,
         "semiColons": false,
         "singleQuote": true,
-        "include": ["*.ts"]
-
+        "include": [
+            "client/",
+            "server/"
+        ],
+        "exclude": [
+            "client/.vite/"
+        ]
     },
     "imports": {
         "@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.0",
@@ -32,14 +37,14 @@
     },
     "compilerOptions": {
         "types": [
-          "react",
-          "react-dom",
-          "@types/react"
+            "react",
+            "react-dom",
+            "@types/react"
         ],
         "lib": [
-          "dom",
-          "dom.iterable",
-          "deno.ns"
+            "dom",
+            "dom.iterable",
+            "deno.ns"
         ],
         "jsx": "react-jsx",
         "jsxImportSource": "react"
